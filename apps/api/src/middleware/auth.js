@@ -7,10 +7,20 @@ export function authMiddleware(req, res, next) {
     return fail(res, "Unauthorized", 401);
   }
 
-  try {
-    req.user = verifyAccessToken(authHeader.slice(7));
+try {
+  req.user = verifyAccessToken(authHeader.slice(7));
+  return next();
+} catch {
+  return fail(res, "Invalid token", 401);
+}
+}
+
+export function requireRole(role) {
+  return function roleMiddleware(req, res, next) {
+    if (req.user?.role !== role) {
+      return fail(res, "Forbidden", 403);
+    }
+
     return next();
-  } catch {
-    return fail(res, "Invalid token", 401);
-  }
+  };
 }
